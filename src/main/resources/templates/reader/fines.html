@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Multas</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/reader/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/reader/dashboard">Dashboard</a>
+                <a class="nav-link" href="/reader/catalog">Catálogo</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Mis Multas</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 th:text="${totalAmount}" class="text-danger">$0.00</h3>
+                        <p>Total a Pagar</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 th:text="${#lists.size(fines)}" class="text-warning">0</h3>
+                        <p>Multas Pendientes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${#lists.isEmpty(fines)}" class="alert alert-success">
+            <h4>¡Excelente!</h4>
+            <p>No tienes multas pendientes. Mantén tus préstamos al día para evitar cargos adicionales.</p>
+        </div>
+        
+        <div th:if="${!#lists.isEmpty(fines)}">
+            <div class="alert alert-warning">
+                <strong>Importante:</strong> Mientras tengas multas pendientes, no podrás renovar préstamos. 
+                Una vez pagadas las multas, podrás solicitar nuevos préstamos pero sin opción de renovación.
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5>Detalle de Multas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha</th>
+                                    <th>Monto</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="fine : ${fines}">
+                                    <td>
+                                        <span th:if="${fine.fineType == 'LATE_RETURN'}" class="badge bg-warning">Retraso</span>
+                                        <span th:if="${fine.fineType == 'DAMAGED_BOOK'}" class="badge bg-danger">Daño</span>
+                                    </td>
+                                    <td th:text="${fine.description}"></td>
+                                    <td th:text="${fine.fineDate}"></td>
+                                    <td th:text="'$' + ${fine.amount}"></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                data-bs-toggle="modal" 
+                                                th:data-bs-target="'#payModal' + ${fine.id}">
+                                            Pagar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modales de pago -->
+            <div th:each="fine : ${fines}" class="modal fade" th:id="'payModal' + ${fine.id}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Pagar Multa</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Tipo:</strong> <span th:text="${fine.fineType}"></span></p>
+                            <p><strong>Descripción:</strong> <span th:text="${fine.description}"></span></p>
+                            <p><strong>Monto:</strong> <span th:text="'$' + ${fine.amount}"></span></p>
+                            
+                            <div class="alert alert-info">
+                                <strong>Métodos de Pago:</strong>
+                                <ul class="mb-0">
+                                    <li>En línea: Tarjeta de crédito/débito</li>
+                                    <li>Presencial: Efectivo únicamente</li>
+                                </ul>
+                            </div>
+                            
+                            <form th:action="@{/reader/fines/pay/{id}(id=${fine.id})}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Método de Pago</label>
+                                    <select class="form-control" name="paymentMethod" required>
+                                        <option value="">Seleccionar método</option>
+                                        <option value="CARD">Tarjeta</option>
+                                        <option value="CASH">Efectivo (Presencial)</option>
+                                    </select>
+                                </div>
+                                <div class="payment-card" style="display: none;">
+                                    <div class="mb-3">
+                                        <label class="form-label">Número de Tarjeta</label>
+                                        <input type="text" class="form-control" name="cardNumber" placeholder="1234 5678 9012 3456">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Vencimiento</label>
+                                            <input type="text" class="form-control" name="expiry" placeholder="MM/YY">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">CVV</label>
+                                            <input type="text" class="form-control" name="cvv" placeholder="123">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100 mt-3">Procesar Pago</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mt-4">
+            <h5>Información sobre Multas:</h5>
+            <ul class="mb-0">
+                <li><strong>Retraso en devolución:</strong> $200 por cada día de retraso por libro</li>
+                <li><strong>Libro dañado:</strong> $100 por libro + suspensión de 2 meses</li>
+                <li><strong>Acumulación:</strong> Las multas por retraso se acumulan diariamente</li>
+                <li><strong>Restricciones:</strong> No se pueden hacer renovaciones con multas pendientes</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mostrar campos de tarjeta cuando se selecciona pago con tarjeta
+        document.querySelectorAll('select[name="paymentMethod"]').forEach(select => {
+            select.addEventListener('change', function() {
+                const cardDiv = this.closest('.modal-body').querySelector('.payment-card');
+                if (this.value === 'CARD') {
+                    cardDiv.style.display = 'block';
+                } else {
+                    cardDiv.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

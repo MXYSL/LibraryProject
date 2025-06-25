@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Géneros</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Gestión de Géneros Literarios</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Agregar Nuevo Género</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/genres/add}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Género *</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" name="description" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Agregar Género</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Géneros Existentes</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(genres)}" class="text-muted">
+                            No hay géneros registrados.
+                        </div>
+                        <div th:if="${!#lists.isEmpty(genres)}">
+                            <div th:each="genre : ${genres}" class="border-bottom pb-2 mb-2">
+                                <h6 th:text="${genre.name}"></h6>
+                                <p class="text-muted small" th:text="${genre.description}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,10 +1,278 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <title>title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Biblioteca ESCOM</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        .stats-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+    </style>
 </head>
 <body>
-    helloxd
+    <!-- Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-book-open me-2"></i>
+                Biblioteca ESCOM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#servicios">Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">Acerca de</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            Iniciar Sesión
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">
+                            <i class="fas fa-user-plus me-1"></i>
+                            Registrarse
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Hero -->
+    <section class="hero-section text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <h1 class="display-4 fw-bold mb-4">
+                        <i class="fas fa-book me-3"></i>
+                        Sistema de Biblioteca ESCOM
+                    </h1>
+                    <p class="lead mb-4">
+                        Gestiona préstamos, reservaciones y tu historial de lectura de manera fácil y eficiente. 
+                        Accede a nuestro catálogo digital y descubre tu próxima gran lectura.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/login" class="btn btn-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Acceder al Sistema
+                        </a>
+                        <a href="/register" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Nuevo Usuario
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Servicios -->
+    <section id="servicios" class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center mb-5">
+                    <h2 class="display-5 fw-bold">Nuestros Servicios</h2>
+                    <p class="lead text-muted">Todo lo que necesitas para una experiencia de biblioteca moderna</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Búsqueda Avanzada</h5>
+                            <p class="card-text">
+                                Encuentra libros por título, autor, editorial, edición o género. 
+                                Sistema de filtros avanzados para una búsqueda precisa.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-calendar-alt fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Reservaciones</h5>
+                            <p class="card-text">
+                                Aparta tus libros favoritos con 24 horas para recogerlos. 
+                                Sistema de cola por orden de llegada.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-history fa-3x text-info mb-3"></i>
+                            <h5 class="card-title">Historial Completo</h5>
+                            <p class="card-text">
+                                Consulta tu historial de préstamos, devoluciones y califica 
+                                los libros que has leído.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">Sistema de Calificaciones</h5>
+                            <p class="card-text">
+                                Califica libros del 1 al 5 estrellas y lee reseñas de otros usuarios 
+                                para tomar mejores decisiones.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-sync-alt fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Renovaciones</h5>
+                            <p class="card-text">
+                                Renueva tus préstamos directamente desde el sistema. 
+                                Una renovación gratuita de 5 días por préstamo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card h-100 text-center p-4">
+                        <div class="card-body">
+                            <i class="fas fa-credit-card fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Pago de Multas</h5>
+                            <p class="card-text">
+                                Paga tus multas en línea con tarjeta o presencialmente en efectivo. 
+                                Sistema transparente de multas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Estadísticas -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold">5,000+</h3>
+                        <p class="text-muted">Libros Disponibles</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <i class="fas fa-users fa-3x text-success mb-3"></i>
+                        <h3 class="fw-bold">1,200+</h3>
+                        <p class="text-muted">Usuarios Activos</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <i class="fas fa-exchange-alt fa-3x text-warning mb-3"></i>
+                        <h3 class="fw-bold">800+</h3>
+                        <p class="text-muted">Préstamos Mensuales</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="stat-item">
+                        <i class="fas fa-star fa-3x text-info mb-3"></i>
+                        <h3 class="fw-bold">4.8</h3>
+                        <p class="text-muted">Calificación Promedio</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Acerca de -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="display-5 fw-bold mb-4">Acerca del Sistema</h2>
+                    <p class="lead mb-4">
+                        Nuestro sistema de biblioteca está diseñado para brindar una experiencia moderna 
+                        y eficiente tanto para usuarios como para el personal bibliotecario.
+                    </p>
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <h5><i class="fas fa-check-circle text-success me-2"></i>Sistema Web</h5>
+                            <p class="text-muted">Acceso desde cualquier dispositivo con internet</p>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <h5><i class="fas fa-check-circle text-success me-2"></i>Gestión Integral</h5>
+                            <p class="text-muted">Préstamos, devoluciones, multas y reservaciones</p>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <h5><i class="fas fa-check-circle text-success me-2"></i>Reportes Automáticos</h5>
+                            <p class="text-muted">Estadísticas y reportes para administradores</p>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <h5><i class="fas fa-check-circle text-success me-2"></i>Seguro y Confiable</h5>
+                            <p class="text-muted">Protección de datos y sistema robusto</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <i class="fas fa-laptop-code fa-5x text-primary mb-4"></i>
+                    <h4>Tecnología Moderna</h4>
+                    <p class="text-muted">
+                        Desarrollado con Spring Boot, MySQL y las mejores prácticas de desarrollo web.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-book-open me-2"></i>Biblioteca ESCOM</h5>
+                    <p>Sistema integral de gestión bibliotecaria</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2025 Sistema de Biblioteca ESCOM. ADS.</p>
+                    <div>
+                        <i class="fab fa-github me-2"></i>
+                        <i class="fab fa-linkedin me-2"></i>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Reservaciones</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="/librarian/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/librarian/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Gestión de Reservaciones</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <div class="alert alert-info">
+            <strong>Sistema de Reservaciones:</strong>
+            <ul class="mb-0">
+                <li>Los lectores tienen 24 horas para recoger sus libros apartados</li>
+                <li>Se da prioridad a quien llegue primero si varias personas apartan el mismo libro</li>
+                <li>Las reservaciones expiradas se marcan automáticamente como vencidas</li>
+                <li>Los lectores pueden apartar hasta 3 libros por reservación</li>
+            </ul>
+        </div>
+        
+        <!-- Procesar reservación específica -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Procesar Reservación por ID</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="reservationId" placeholder="ID de la Reservación">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success" formaction="/librarian/reservations/fulfill">
+                                Entregar Libro
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Panel de estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body text-center">
+                        <h3>12</h3>
+                        <p>Reservaciones Activas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body text-center">
+                        <h3>3</h3>
+                        <p>Por Expirar (< 2h)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body text-center">
+                        <h3>5</h3>
+                        <p>Expiradas Hoy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body text-center">
+                        <h3>8</h3>
+                        <p>Entregadas Hoy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lista de reservaciones activas (simulada) -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Reservaciones Activas</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Lector</th>
+                                <th>Libro</th>
+                                <th>Cantidad</th>
+                                <th>Fecha Reservación</th>
+                                <th>Expira</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Ejemplo de datos (en implementación real vendrían del controlador) -->
+                            <tr>
+                                <td>001</td>
+                                <td>A01 - Juan Pérez</td>
+                                <td>El Quijote</td>
+                                <td>1</td>
+                                <td>2025-06-25 10:30</td>
+                                <td>2025-06-26 10:30</td>
+                                <td><span class="badge bg-success">Activa</span></td>
+                                <td>
+                                    <form th:action="@{/librarian/reservations/fulfill/001}" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-success">Entregar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>002</td>
+                                <td>A03 - María García</td>
+                                <td>Cien Años de Soledad</td>
+                                <td>2</td>
+                                <td>2025-06-25 08:15</td>
+                                <td>2025-06-26 08:15</td>
+                                <td><span class="badge bg-warning">Por Expirar</span></td>
+                                <td>
+                                    <form th:action="@{/librarian/reservations/fulfill/002}" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-success">Entregar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>003</td>
+                                <td>A05 - Carlos López</td>
+                                <td>1984</td>
+                                <td>1</td>
+                                <td>2025-06-24 16:00</td>
+                                <td>2025-06-25 16:00</td>
+                                <td><span class="badge bg-danger">Expirada</span></td>
+                                <td>
+                                    <span class="text-muted">Expirada</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-warning mt-4">
+            <strong>Proceso de Entrega:</strong>
+            <ol class="mb-0">
+                <li>Verificar la identidad del lector</li>
+                <li>Confirmar que el libro solicitado está disponible</li>
+                <li>Verificar que no tenga multas pendientes</li>
+                <li>Procesar la entrega y crear el préstamo correspondiente</li>
+                <li>La reservación se marca automáticamente como "Entregada"</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

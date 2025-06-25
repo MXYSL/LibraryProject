@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Bibliotecario</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="#">Sistema de Biblioteca - Bibliotecario</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Dashboard Bibliotecario</h1>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5>Préstamos Vencidos</h5>
+                        <h2 th:text="${#lists.size(overdueLoans)}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5>Multas Pendientes</h5>
+                        <h2 th:text="${totalPendingFines}">$0.00</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="list-group">
+                    <a href="/librarian/loans" class="list-group-item list-group-item-action">
+                        <h5>Gestión de Préstamos</h5>
+                        <p>Crear préstamos, renovar y procesar devoluciones</p>
+                    </a>
+                    <a href="/librarian/books/update-quantity" class="list-group-item list-group-item-action">
+                        <h5>Actualizar Cantidades</h5>
+                        <p>Modificar cantidades de libros en inventario</p>
+                    </a>
+                    <a href="/librarian/reservations" class="list-group-item list-group-item-action">
+                        <h5>Gestión de Reservaciones</h5>
+                        <p>Procesar apartados de libros</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4" th:if="${#lists.size(overdueLoans) > 0}">
+            <div class="col-md-12">
+                <h3>Préstamos Vencidos</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Lector</th>
+                                <th>Libro</th>
+                                <th>Fecha Vencimiento</th>
+                                <th>Días de Retraso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="loan : ${overdueLoans}">
+                                <td th:text="${loan.reader.name}"></td>
+                                <td th:text="${loan.book.title}"></td>
+                                <td th:text="${loan.dueDate}"></td>
+                                <td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(loan.dueDate, T(java.time.LocalDate).now())}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

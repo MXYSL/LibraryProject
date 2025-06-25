@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reportes del Sistema</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Reportes del Sistema</h1>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body text-center">
+                        <h2 th:text="${totalPendingFines}">$0.00</h2>
+                        <p>Total Multas Pendientes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body text-center">
+                        <h2 th:text="${totalPendingFinesCount}">0</h2>
+                        <p>Cantidad de Multas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body text-center">
+                        <h2 th:text="${overdueLoansCount}">0</h2>
+                        <p>Préstamos Vencidos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body text-center">
+                        <h2>100%</h2>
+                        <p>Sistema Operativo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Filtros de Reporte</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="get">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">Fecha Inicio</label>
+                                    <input type="date" class="form-control" name="startDate">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Fecha Fin</label>
+                                    <input type="date" class="form-control" name="endDate">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipo de Reporte</label>
+                                    <select class="form-control" name="reportType">
+                                        <option value="loans">Préstamos del Mes</option>
+                                        <option value="returns">Devoluciones del Mes</option>
+                                        <option value="fines">Multas</option>
+                                        <option value="books">Libros por Título</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary d-block">Generar Reporte</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Usuarios con Multas Pendientes</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Este reporte se genera dinámicamente basado en el estado actual del sistema.</p>
+                        <div class="alert alert-info">
+                            <strong>Información:</strong> Los reportes detallados requieren fechas específicas para mostrar datos históricos.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Resumen Semanal</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Nota:</strong> Los reportes se manejan por semanas de 4 semanas comenzando los lunes.</p>
+                        <ul>
+                            <li>Libros más prestados</li>
+                            <li>Géneros más populares</li>
+                            <li>Usuarios más activos</li>
+                            <li>Estadísticas de devoluciones</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo de Libros</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/reader/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/reader/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Catálogo de Libros</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <!-- Formulario de búsqueda -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Búsqueda Avanzada</h5>
+                <form method="get">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="title" placeholder="Título" th:value="${param.title}">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="author" placeholder="Autor" th:value="${param.author}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="publisher" placeholder="Editorial" th:value="${param.publisher}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" name="edition" placeholder="Edición" th:value="${param.edition}">
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-control" name="genreId">
+                                <option value="">Todos los géneros</option>
+                                <option th:each="genre : ${genres}" 
+                                        th:value="${genre.id}" 
+                                        th:text="${genre.name}"
+                                        th:selected="${param.genreId != null and param.genreId[0] == genre.id.toString()}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+                    <a href="/reader/catalog" class="btn btn-secondary mt-2">Limpiar</a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Resultados -->
+        <div class="row">
+            <div th:each="book : ${books}" class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img th:if="${book.coverImageUrl}" th:src="${book.coverImageUrl}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${book.title}"></h5>
+                        <p class="card-text">
+                            <strong>Autor:</strong> <span th:text="${book.author}"></span><br>
+                            <strong>Editorial:</strong> <span th:text="${book.publisher}"></span><br>
+                            <strong>Género:</strong> <span th:text="${book.genre.name}"></span><br>
+                            <strong>Disponibles:</strong> <span th:text="${book.availableQuantity}"></span>
+                        </p>
+                        <p class="card-text" th:text="${book.synopsis}"></p>
+                    </div>
+                    <div class="card-footer">
+                        <form th:if="${book.availableQuantity > 0}" th:action="@{/reader/reserve/{id}(id=${book.id})}" method="post">
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="quantity" value="1" min="1" max="3">
+                                <button type="submit" class="btn btn-success">Apartar</button>
+                            </div>
+                        </form>
+                        <button th:if="${book.availableQuantity == 0}" class="btn btn-secondary" disabled>No disponible</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${#lists.isEmpty(books)}" class="text-center mt-4">
+            <p>No se encontraron libros con los criterios de búsqueda.</p>
+        </div>
+    </div>
+</body>
+</html>

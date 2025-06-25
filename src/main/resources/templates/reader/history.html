@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Historial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/reader/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/reader/dashboard">Dashboard</a>
+                <a class="nav-link" href="/reader/catalog">Catálogo</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Mi Historial de Préstamos</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <div th:if="${#lists.isEmpty(loanHistory)}" class="alert alert-info">
+            <h4>Sin historial</h4>
+            <p>Aún no has realizado ningún préstamo. ¡Explora nuestro catálogo y encuentra tu próxima lectura!</p>
+            <a href="/reader/catalog" class="btn btn-primary">Explorar Catálogo</a>
+        </div>
+        
+        <div th:if="${!#lists.isEmpty(loanHistory)}">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Libro</th>
+                            <th>Autor</th>
+                            <th>Fecha Préstamo</th>
+                            <th>Fecha Vencimiento</th>
+                            <th>Fecha Devolución</th>
+                            <th>Estado</th>
+                            <th>Días Restantes</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="loan : ${loanHistory}">
+                            <td th:text="${loan.book.title}"></td>
+                            <td th:text="${loan.book.author}"></td>
+                            <td th:text="${loan.loanDate}"></td>
+                            <td th:text="${loan.dueDate}"></td>
+                            <td>
+                                <span th:if="${loan.returnDate}" th:text="${loan.returnDate}"></span>
+                                <span th:if="${loan.returnDate == null}" class="text-muted">No devuelto</span>
+                            </td>
+                            <td>
+                                <span th:if="${loan.status == 'ACTIVE'}" class="badge bg-primary">Activo</span>
+                                <span th:if="${loan.status == 'RETURNED'}" class="badge bg-success">Devuelto</span>
+                                <span th:if="${loan.status == 'OVERDUE'}" class="badge bg-danger">Vencido</span>
+                            </td>
+                            <td>
+                                <span th:if="${loan.status == 'ACTIVE'}">
+                                    <span th:with="daysLeft=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDate).now(), loan.dueDate)}">
+                                        <span th:if="${daysLeft >= 0}" th:text="${daysLeft + ' días'}" class="text-success"></span>
+                                        <span th:if="${daysLeft < 0}" th:text="${Math.abs(daysLeft) + ' días de retraso'}" class="text-danger"></span>
+                                    </span>
+                                </span>
+                                <span th:if="${loan.status != 'ACTIVE'}" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <div th:if="${loan.status == 'ACTIVE'}">
+                                    <form th:if="${loan.renewalCount == 0}" 
+                                          th:action="@{/reader/loans/renew/{id}(id=${loan.id})}" 
+                                          method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-warning">Renovar</button>
+                                    </form>
+                                    <small th:if="${loan.renewalCount > 0}" class="text-muted">Ya renovado</small>
+                                </div>
+                                <div th:if="${loan.status == 'RETURNED'}">
+                                    <button type="button" class="btn btn-sm btn-info" 
+                                            data-bs-toggle="modal" 
+                                            th:data-bs-target="'#rateModal' + ${loan.id}">
+                                        Calificar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Modales de calificación -->
+            <div th:each="loan : ${loanHistory}" 
+                 th:if="${loan.status == 'RETURNED'}"
+                 class="modal fade" 
+                 th:id="'rateModal' + ${loan.id}" 
+                 tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Calificar Libro</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form th:action="@{/reader/rate/{id}(id=${loan.book.id})}" method="post">
+                            <div class="modal-body">
+                                <h6 th:text="${loan.book.title}"></h6>
+                                <p class="text-muted" th:text="${loan.book.author}"></p>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Calificación (1-5 estrellas)</label>
+                                    <div class="rating">
+                                        <input type="radio" id="star5" name="stars" value="5">
+                                        <label for="star5">★</label>
+                                        <input type="radio" id="star4" name="stars" value="4">
+                                        <label for="star4">★</label>
+                                        <input type="radio" id="star3" name="stars" value="3">
+                                        <label for="star3">★</label>
+                                        <input type="radio" id="star2" name="stars" value="2">
+                                        <label for="star2">★</label>
+                                        <input type="radio" id="star1" name="stars" value="1">
+                                        <label for="star1">★</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Comentario (opcional)</label>
+                                    <textarea class="form-control" name="comment" rows="3" 
+                                              placeholder="Comparte tu opinión sobre este libro..."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Enviar Calificación</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .rating {
+            direction: rtl;
+            font-size: 24px;
+        }
+        
+        .rating input {
+            display: none;
+        }
+        
+        .rating label {
+            color: #ddd;
+            cursor: pointer;
+        }
+        
+        .rating label:hover,
+        .rating label:hover ~ label,
+        .rating input:checked ~ label {
+            color: #ffc107;
+        }
+    </style>
+</body>
+</html>

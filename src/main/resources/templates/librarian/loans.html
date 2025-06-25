@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Préstamos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="/librarian/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/librarian/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Gestión de Préstamos</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <!-- Crear nuevo préstamo -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Crear Nuevo Préstamo</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/librarian/loans/create}" method="post">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Lector *</label>
+                                <select class="form-control" name="readerId" required>
+                                    <option value="">Seleccionar lector</option>
+                                    <option th:each="reader : ${readers}" 
+                                            th:value="${reader.id}" 
+                                            th:text="${reader.id + ' - ' + reader.name}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Libro *</label>
+                                <select class="form-control" name="bookId" required>
+                                    <option value="">Seleccionar libro</option>
+                                    <option th:each="book : ${books}" 
+                                            th:value="${book.id}" 
+                                            th:text="${book.title + ' (' + book.availableQuantity + ' disponibles)'}"
+                                            th:disabled="${book.availableQuantity == 0}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Días de Préstamo (3-15) *</label>
+                                <input type="number" class="form-control" name="loanDays" min="3" max="15" value="7" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear Préstamo</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Búsqueda de préstamos -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Buscar Préstamo por Lector</h5>
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="readerId" placeholder="ID del Lector (ej: A01)" th:value="${param.readerId}">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-info">Buscar Préstamos</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Acciones rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>Devolución Rápida</h5>
+                        <form method="post">
+                            <input type="text" class="form-control mb-2" placeholder="ID del Préstamo" name="loanId">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="isDamaged" id="isDamaged">
+                                <label class="form-check-label" for="isDamaged">Libro Dañado</label>
+                            </div>
+                            <button type="submit" class="btn btn-warning" formaction="/librarian/loans/return">Procesar Devolución</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>Renovación Rápida</h5>
+                        <form method="post">
+                            <input type="text" class="form-control mb-2" placeholder="ID del Préstamo" name="loanId">
+                            <button type="submit" class="btn btn-success" formaction="/librarian/loans/renew">Renovar Préstamo</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>Verificar Multas</h5>
+                        <form method="get" action="/librarian/check-fines">
+                            <input type="text" class="form-control mb-2" placeholder="ID del Lector" name="readerId">
+                            <button type="submit" class="btn btn-info">Verificar Estado</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información importante -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <h5>Reglas del Sistema:</h5>
+                    <ul class="mb-0">
+                        <li><strong>Límites por lector:</strong> Máximo 3 libros por préstamo, máximo 3 préstamos (en diferentes días)</li>
+                        <li><strong>Días de préstamo:</strong> Entre 3 y 15 días naturales</li>
+                        <li><strong>Renovaciones:</strong> Solo 1 renovación por préstamo (5 días adicionales)</li>
+                        <li><strong>Multas:</strong> $200 por día de retraso, $100 por libro dañado</li>
+                        <li><strong>Restricciones:</strong> No se puede renovar con multas pendientes</li>
+                        <li><strong>Libros dañados:</strong> Suspensión de 2 meses para nuevos préstamos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

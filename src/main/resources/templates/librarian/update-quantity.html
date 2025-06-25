@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Actualizar Cantidades</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="/librarian/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/librarian/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Actualizar Cantidades de Libros</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <div class="alert alert-warning">
+            <strong>Nota:</strong> Como bibliotecario, solo puedes gestionar las cantidades de libros existentes. 
+            No puedes agregar nuevos títulos al catálogo.
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5>Inventario de Libros</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Editorial</th>
+                                <th>Total Actual</th>
+                                <th>Disponibles</th>
+                                <th>En Préstamo</th>
+                                <th>Nueva Cantidad</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="book : ${books}">
+                                <td th:text="${book.title}"></td>
+                                <td th:text="${book.author}"></td>
+                                <td th:text="${book.publisher}"></td>
+                                <td th:text="${book.totalQuantity}"></td>
+                                <td th:text="${book.availableQuantity}"></td>
+                                <td th:text="${book.totalQuantity - book.availableQuantity}"></td>
+                                <td>
+                                    <form th:action="@{/librarian/books/update-quantity/{id}(id=${book.id})}" method="post" style="display: inline;">
+                                        <input type="number" class="form-control form-control-sm" name="newQuantity" 
+                                               th:value="${book.totalQuantity}" 
+                                               th:min="${book.totalQuantity - book.availableQuantity}"
+                                               style="width: 80px; display: inline-block;">
+                                </td>
+                                <td>
+                                        <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mt-4">
+            <h5>Instrucciones:</h5>
+            <ul class="mb-0">
+                <li>La nueva cantidad no puede ser menor que los libros actualmente en préstamo</li>
+                <li>Al reducir la cantidad, solo afecta los libros disponibles</li>
+                <li>Al aumentar la cantidad, se agregan libros disponibles para préstamo</li>
+                <li>Los cambios se reflejan inmediatamente en el sistema</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

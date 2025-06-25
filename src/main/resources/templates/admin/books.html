@@ -1,0 +1,193 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Libros</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/admin/dashboard">Sistema de Biblioteca</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>Gestión de Libros</h1>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <!-- Formulario para agregar libro -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Agregar Nuevo Libro</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/admin/books/add}" method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Título *</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Autor *</label>
+                                <input type="text" class="form-control" name="author" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Editorial *</label>
+                                <input type="text" class="form-control" name="publisher" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Edición</label>
+                                <input type="text" class="form-control" name="edition">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cantidad *</label>
+                                <input type="number" class="form-control" name="quantity" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">ISBN</label>
+                                <input type="text" class="form-control" name="isbn">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Género *</label>
+                                <select class="form-control" name="genreId" required>
+                                    <option value="">Seleccionar género</option>
+                                    <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Material</label>
+                                <select class="form-control" name="materialType" required>
+                                    <option value="BOOK">Libro</option>
+                                    <option value="MAGAZINE">Revista</option>
+                                    <option value="DIGITAL">Material Digital</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL de Portada</label>
+                        <input type="url" class="form-control" name="coverImageUrl">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reseña</label>
+                        <textarea class="form-control" name="synopsis" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Libro</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Lista de libros -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Libros en el Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Editorial</th>
+                                <th>Total</th>
+                                <th>Disponibles</th>
+                                <th>Género</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="book : ${books}">
+                                <td th:text="${book.title}"></td>
+                                <td th:text="${book.author}"></td>
+                                <td th:text="${book.publisher}"></td>
+                                <td th:text="${book.totalQuantity}"></td>
+                                <td th:text="${book.availableQuantity}"></td>
+                                <td th:text="${book.genre.name}"></td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" 
+                                            th:data-bs-target="'#editModal' + ${book.id}">Editar</button>
+                                    <form th:action="@{/admin/books/delete/{id}(id=${book.id})}" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                                onclick="return confirm('¿Está seguro de eliminar este libro?')">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modales de edición -->
+        <div th:each="book : ${books}" class="modal fade" th:id="'editModal' + ${book.id}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Libro</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form th:action="@{/admin/books/edit/{id}(id=${book.id})}" method="post">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Título</label>
+                                        <input type="text" class="form-control" name="title" th:value="${book.title}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Autor</label>
+                                        <input type="text" class="form-control" name="author" th:value="${book.author}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Editorial</label>
+                                        <input type="text" class="form-control" name="publisher" th:value="${book.publisher}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Edición</label>
+                                        <input type="text" class="form-control" name="edition" th:value="${book.edition}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Género</label>
+                                        <select class="form-control" name="genreId" required>
+                                            <option th:each="genre : ${genres}" 
+                                                    th:value="${genre.id}" 
+                                                    th:text="${genre.name}"
+                                                    th:selected="${genre.id == book.genre.id}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">URL de Portada</label>
+                                        <input type="url" class="form-control" name="coverImageUrl" th:value="${book.coverImageUrl}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Reseña</label>
+                                <textarea class="form-control" name="synopsis" rows="3" th:text="${book.synopsis}"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
